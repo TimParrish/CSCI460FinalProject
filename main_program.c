@@ -70,6 +70,10 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 			
 			i = srt(processes);
 			
+		} else if (strcmp("PPB", algorithm) == 0) {
+			
+			i = preemptive_priority_based(processes);
+			
 		} else {
 			printf("Not a known algorithm.");
 		}
@@ -184,9 +188,11 @@ int main(int argc, char * argv[]) {
 		double fifoTurnaroundTime = 0;
 		double sjfTurnaroundTime = 0;
 		double srtTurnaroundTime = 0;
+		double ppbTurnaroundTime = 0;
+
 		
 		// run our simulation with FIFO 
-		printf("--------------- Starting FIFO ---------------");
+		printf("---------------------- Starting FIFO -----------------------");
 		fifoTurnaroundTime = simulation(processes, "FIFO"); 
 		
 		// copy all values from processCopy to restore our original processes
@@ -195,7 +201,7 @@ int main(int argc, char * argv[]) {
 		}
 		
 		// run our simulation with SJF
-		printf("--------------- Starting SJF ---------------");
+		printf("----------------------- Starting SJF -----------------------");
 		sjfTurnaroundTime = simulation(processes, "SJF"); // run our simulation
 		
 		// copy all values from processCopy to restore our original processes
@@ -204,12 +210,18 @@ int main(int argc, char * argv[]) {
 		}
 		
 		// run our simulation with SRT
-		printf("--------------- Starting SRT ---------------");
+		printf("----------------------- Starting SRT -----------------------");
 		srtTurnaroundTime = simulation(processes, "SRT"); // run our simulation
+		
+		// run our simulation with Preemptive Priority Based 
+		printf("------------ Starting Preemptive Priority Based ------------");
+		ppbTurnaroundTime = simulation(processes, "PPB"); // run our simulation
 		
 		printf("\nAverage Turnaround Time for FIFO was: %lf\n", fifoTurnaroundTime);
 		printf("\nAverage Turnaround Time for SJF was: %lf\n", sjfTurnaroundTime);
 		printf("\nAverage Turnaround Time for SRT was: %lf\n", srtTurnaroundTime);
+		printf("\nAverage Turnaround Time for PPB was: %lf\n", ppbTurnaroundTime);
+
 		
 		
 	} else {
@@ -289,11 +301,11 @@ int main(int argc, char * argv[]) {
 	
 	gsl_rng_free (r);
 	
-	printf("In the main program, calling down to methods in other files now...\n");
-    improved_round_robin();
-    highest_response_ratio_next();
-    improved_multilevel_feedback_queue();
-    preemptive_priority_based();
+	// printf("In the main program, calling down to methods in other files now...\n");
+    // improved_round_robin();
+    // highest_response_ratio_next();
+    // improved_multilevel_feedback_queue();
+    // preemptive_priority_based();
 	
     return 0;
 }
