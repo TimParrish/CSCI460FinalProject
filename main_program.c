@@ -40,7 +40,7 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 	int anyProcessRemains =  1;
 	int currentProcessIndex = -1;
 	int time = 0; // simulation time (t)
-
+	int hrrnIndex = -1;
 	// run through the simulation
 	while (anyProcessRemains == 1) {
 
@@ -74,7 +74,14 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 
 			i = preemptive_priority_based(processes);
 
-		} else {
+		} 
+		else if (strcmp("HRRN", algorithm) == 0){
+			// run HRRN to get next process, keep track of current process because no pre-emption
+			currentProcessIndex = highest_response_ratio_next(processes, time, currentProcessIndex, hrrnIndex);
+			i = currentProcessIndex;
+			hrrnIndex = i;
+			
+		}else {
 			printf("Not a known algorithm.");
 		}
 
@@ -92,6 +99,7 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 
 			// if the process has finished running on the cpu
 			if (processes[i].remainingCpuTime == 0) {
+				hrrnIndex = -1;
 				processes[i].active = 0; // deactivate the process
 				processes[i].turnaroundTime = time - processes[i].arrivalTime; // calculate turnaround time for this process
 			}
@@ -188,6 +196,7 @@ int main(int argc, char * argv[]) {
 		double sjfTurnaroundTime = 0;
 		double srtTurnaroundTime = 0;
 		double ppbTurnaroundTime = 0;
+		double hrrnTurnaroundTime = 0;	
 
 
 		// run our simulation with FIFO
@@ -211,15 +220,30 @@ int main(int argc, char * argv[]) {
 		// run our simulation with SRT
 		printf("----------------------- Starting SRT -----------------------");
 		srtTurnaroundTime = simulation(processes, "SRT"); // run our simulation
+		
+		// copy all values from processCopy to restore our original processes
+		for (int i = 0; i < numProcesses; i++) {
+			processes[i] = processCopy[i];
+		}
 
 		// run our simulation with Preemptive Priority Based
 		printf("------------ Starting Preemptive Priority Based ------------");
 		ppbTurnaroundTime = simulation(processes, "PPB"); // run our simulation
+		
+		// copy all values from processCopy to restore our original processes
+		for (int i = 0; i < numProcesses; i++) {
+			processes[i] = processCopy[i];
+		}
+		
+		// run our simulation with SRT
+		printf("--------------- Starting HRRN ---------------");
+		hrrnTurnaroundTime = simulation(processes, "HRRN"); // run our simulation
 
 		printf("\nAverage Turnaround Time for FIFO was: %lf\n", fifoTurnaroundTime);
 		printf("\nAverage Turnaround Time for SJF was: %lf\n", sjfTurnaroundTime);
 		printf("\nAverage Turnaround Time for SRT was: %lf\n", srtTurnaroundTime);
 		printf("\nAverage Turnaround Time for PPB was: %lf\n", ppbTurnaroundTime);
+		printf("\nAverage Turnaround Time for HRRN was: %lf\n", hrrnTurnaroundTime);
 
 
 	} else {
