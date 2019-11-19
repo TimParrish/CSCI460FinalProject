@@ -7,14 +7,16 @@
 
 static int k = 20; // interval in which processes may arrive
 static int numProcesses = 5;
+static int numPriorities = 10;
 
-struct process { 
+struct process {
 	int id; // pi
 	int active; // 0 is inactive, 1 is active
 	int arrivalTime; // Ai
 	int cpuTime; // Ti
 	int remainingCpuTime; // Ri
 	int turnaroundTime; // TTi
+	int priority; // draw from uniform to get these values
 };
 
 #include <stdio.h>
@@ -165,9 +167,10 @@ int main(int argc, char * argv[]) {
 			
 			processes[i].cpuTime = randomNormal; // get random integer from the normal distribution
 			processes[i].remainingCpuTime = processes[i].cpuTime; // initialize Ri = Ti
+			processes[i].priority = gsl_ran_flat(r, 0, numPriorities); // get random integer (0-k) from a uniform distribution
 			
 			
-			printf("Process #%d:\nAi: %d\nTi: %d\nRi: %d\n", processes[i].id, processes[i].arrivalTime, processes[i].cpuTime, processes[i].remainingCpuTime);
+			printf("Process #%d:\nAi: %d\nTi: %d\nRi: %d\nPriority: %d\n", processes[i].id, processes[i].arrivalTime, processes[i].cpuTime, processes[i].remainingCpuTime, processes[i].priority);
 
 		}
 		
