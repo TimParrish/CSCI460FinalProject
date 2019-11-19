@@ -1,25 +1,22 @@
 //Highest Response Ratio Next
 
-// algorithm for a highest response reatio next scheduler
-int highest_response_ratio_next(struct process processes[numProcesses]) {
-	
-	int smallestArrivalIndex = -1;
-	int firstArrivalTime = k; // first arrival time cannot be after max arrival time
+int highest_response_ratio_next(struct process processes[numProcesses], int clock, int indexOfRunning, int hrrRunning)
+{
+	int indexOfHRRN = -1;
+	int highestResponseRatio = 0;
 
-	// find active process that arrived the earliest
-	for (int i = 0; i < numProcesses; i++) {
-
-		// check if process is active
-		if (processes[i].active == 1) {
-		
-			// check if the processe's arrival time was earlier than the earliest known
-			if (processes[i].arrivalTime < firstArrivalTime) {
-				
-				firstArrivalTime = processes[i].arrivalTime; // set new earleist known arrival time
-				smallestArrivalIndex = i; // return index of the earliest known arrival time			
+	if(hrrRunning == -1) {
+		for(int i = 0; i < numProcesses; i++){
+			if(processes[i].active == 1){
+				float response = clock - processes[i].cpuTime;
+				response = response / processes[i].cpuTime;
+				if(response > highestResponseRatio){
+					indexOfHRRN = i;
+				}
 			}
 		}
+	} else {
+		indexOfHRRN = indexOfRunning;
 	}
-
-	return smallestArrivalIndex;	
+	return indexOfHRRN;
 }
