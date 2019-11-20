@@ -8,7 +8,7 @@ int preemptive_random(struct process processes[]) {
   }
 
 	// if no valid process was found to return
-	if (selectedProcess = -1;) {
+	if (selectedProcess = -1) {
 		return -1;
 	} else {
 		return selectedProcess;
