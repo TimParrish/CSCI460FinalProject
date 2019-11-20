@@ -81,6 +81,12 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 			i = currentProcessIndex;
 			hrrnIndex = i;
 			
+		else if (strcmp("LRRN", algorithm) == 0){
+			// run HRRN to get next process, keep track of current process because no pre-emption
+			currentProcessIndex = lowest_response_ratio_next(processes, time, currentProcessIndex, hrrnIndex);
+			i = currentProcessIndex;
+			hrrnIndex = i;
+			
 		}else {
 			printf("Not a known algorithm.");
 		}
@@ -197,6 +203,7 @@ int main(int argc, char * argv[]) {
 		double srtTurnaroundTime = 0;
 		double ppbTurnaroundTime = 0;
 		double hrrnTurnaroundTime = 0;	
+		double lrrnTurnaroundTime = 0;	
 
 
 		// run our simulation with FIFO
@@ -235,15 +242,25 @@ int main(int argc, char * argv[]) {
 			processes[i] = processCopy[i];
 		}
 		
-		// run our simulation with SRT
+		// run our simulation with HRRN
 		printf("--------------- Starting HRRN ---------------");
 		hrrnTurnaroundTime = simulation(processes, "HRRN"); // run our simulation
+		
+		// copy all values from processCopy to restore our original processes
+		for (int i = 0; i < numProcesses; i++) {
+			processes[i] = processCopy[i];
+		}
+		
+		// run our simulation with HRRN
+		printf("--------------- Starting LRRN ---------------");
+		lrrnTurnaroundTime = simulation(processes, "LRRN"); // run our simulation
 
 		printf("\nAverage Turnaround Time for FIFO was: %lf\n", fifoTurnaroundTime);
 		printf("\nAverage Turnaround Time for SJF was: %lf\n", sjfTurnaroundTime);
 		printf("\nAverage Turnaround Time for SRT was: %lf\n", srtTurnaroundTime);
 		printf("\nAverage Turnaround Time for PPB was: %lf\n", ppbTurnaroundTime);
 		printf("\nAverage Turnaround Time for HRRN was: %lf\n", hrrnTurnaroundTime);
+		printf("\nAverage Turnaround Time for LRRN was: %lf\n", lrrnTurnaroundTime);
 
 
 	} else {
