@@ -83,15 +83,17 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 			hrrnIndex = i;
 		}	
 		else if (strcmp("LRRN", algorithm) == 0){
-			// run HRRN to get next process, keep track of current process because no pre-emption
+			// run LRRN to get next process, keep track of current process because no pre-emption
 			currentProcessIndex = lowest_response_ratio_next(processes, time, currentProcessIndex, hrrnIndex);
 			i = currentProcessIndex;
 			hrrnIndex = i;
 			
 		}
 		else if (strcmp("PRERAND", algorithm) == 0){
-			// run HRRN to get next process, keep track of current process because no pre-emption
+			// run preemptive random
+			printf("Hit");
 			currentProcessIndex = preemptive_random(processes);
+			printf("Complete");
 			i = currentProcessIndex;
 			
 		}
