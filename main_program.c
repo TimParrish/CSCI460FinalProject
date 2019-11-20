@@ -91,9 +91,7 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 		}
 		else if (strcmp("PRERAND", algorithm) == 0){
 			// run preemptive random
-			printf("Hit");
 			currentProcessIndex = preemptive_random(processes);
-			printf("Complete");
 			i = currentProcessIndex;
 			
 		}
