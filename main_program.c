@@ -33,7 +33,7 @@ struct process {
 #include "shortest_job_first.c"
 #include "shortest_remaining_time.c"
 #include "lowest_response_ratio_next.c"
-
+#include "preemptive_random.c"
 
 // runs the simulation for a given set of processes and a particular scheduling algorithm
 double simulation(struct process processes[numProcesses], char algorithm[]) {
@@ -88,7 +88,14 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 			i = currentProcessIndex;
 			hrrnIndex = i;
 			
-		}else {
+		}
+		else if (strcmp("PRERAND", algorithm) == 0){
+			// run HRRN to get next process, keep track of current process because no pre-emption
+			currentProcessIndex = preemptive_random(processes);
+			i = currentProcessIndex;
+			
+		}
+		else {
 			printf("Not a known algorithm.");
 		}
 
@@ -206,6 +213,7 @@ int main(int argc, char * argv[]) {
 		double ppbTurnaroundTime = 0;
 		double hrrnTurnaroundTime = 0;
 		double lrrnTurnaroundTime = 0;
+		double PRERANDTurnaroundTime = 0;
 
 
 		// run our simulation with FIFO
@@ -254,9 +262,18 @@ int main(int argc, char * argv[]) {
 			processes[i] = processCopy[i];
 		}
 
-		// run our simulation with HRRN
+		// run our simulation with LRRN
 		printf("--------------- Starting LRRN ---------------");
 		lrrnTurnaroundTime = simulation(processes, "LRRN"); // run our simulation
+		
+		// copy all values from processCopy to restore our original processes
+		for (int i = 0; i < numProcesses; i++) {
+			processes[i] = processCopy[i];
+		}
+
+		// run our simulation with Preemtive Random
+		printf("--------------- Starting PreemptiveRandom ---------------");
+		PRERANDTurnaroundTime = simulation(processes, "PRERAND"); // run our simulation
 
 		printf("\nAverage Turnaround Time for FIFO was: %lf\n", fifoTurnaroundTime);
 		printf("\nAverage Turnaround Time for SJF was: %lf\n", sjfTurnaroundTime);
@@ -264,6 +281,7 @@ int main(int argc, char * argv[]) {
 		printf("\nAverage Turnaround Time for PB was: %lf\n", pbTurnaroundTime);
 		printf("\nAverage Turnaround Time for HRRN was: %lf\n", hrrnTurnaroundTime);
 		printf("\nAverage Turnaround Time for LRRN was: %lf\n", lrrnTurnaroundTime);
+		printf("\nAverage Turnaround Time for PRERAND was: %lf\n", PRERANDTurnaroundTime);
 
 
 	} else {
