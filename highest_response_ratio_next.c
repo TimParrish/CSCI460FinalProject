@@ -12,6 +12,7 @@ int highest_response_ratio_next(struct process processes[numProcesses], int cloc
 				response = response / processes[i].cpuTime;
 				if(response > highestResponseRatio){
 					indexOfHRRN = i;
+					highestResponseRatio = response;
 				}
 			}
 		}
