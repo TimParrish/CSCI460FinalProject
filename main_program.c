@@ -81,7 +81,7 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 			currentProcessIndex = highest_response_ratio_next(processes, time, currentProcessIndex, hrrnIndex);
 			i = currentProcessIndex;
 			hrrnIndex = i;
-			
+		}	
 		else if (strcmp("LRRN", algorithm) == 0){
 			// run HRRN to get next process, keep track of current process because no pre-emption
 			currentProcessIndex = lowest_response_ratio_next(processes, time, currentProcessIndex, hrrnIndex);
