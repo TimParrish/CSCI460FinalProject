@@ -1,7 +1,6 @@
-//Pre-emptive priority based
 
-// algorithm for a preemptive priority based scheduler
-int preemptive_priority_based(struct process processes[numProcesses]) {
+// algorithm for a NON-preemptive priority based scheduler
+int priority_based(struct process processes[numProcesses]) {
 
 	int lowestPriorityProcessIndex = -1;
 	int lowestPriority = k; // first arrival time cannot be after max arrival time

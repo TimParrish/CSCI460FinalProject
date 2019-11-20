@@ -28,7 +28,7 @@ struct process {
 #include "improved_round_robin.c"
 #include "highest_response_ratio_next.c"
 #include "improved_multilevel_feedback_queue.c"
-#include "preemptive_priority_based.c"
+#include "priority_based.c"
 #include "first_in_first_out.c"
 #include "shortest_job_first.c"
 #include "shortest_remaining_time.c"
@@ -70,9 +70,9 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 
 			i = srt(processes);
 
-		} else if (strcmp("PPB", algorithm) == 0) {
+		} else if (strcmp("PB", algorithm) == 0) {
 
-			i = preemptive_priority_based(processes);
+			i = priority_based(processes);
 
 		} else {
 			printf("Not a known algorithm.");
@@ -187,7 +187,7 @@ int main(int argc, char * argv[]) {
 		double fifoTurnaroundTime = 0;
 		double sjfTurnaroundTime = 0;
 		double srtTurnaroundTime = 0;
-		double ppbTurnaroundTime = 0;
+		double pbTurnaroundTime = 0;
 
 
 		// run our simulation with FIFO
@@ -213,13 +213,13 @@ int main(int argc, char * argv[]) {
 		srtTurnaroundTime = simulation(processes, "SRT"); // run our simulation
 
 		// run our simulation with Preemptive Priority Based
-		printf("------------ Starting Preemptive Priority Based ------------");
-		ppbTurnaroundTime = simulation(processes, "PPB"); // run our simulation
+		printf("------------------ Starting Priority Based -----------------");
+		pbTurnaroundTime = simulation(processes, "PB"); // run our simulation
 
 		printf("\nAverage Turnaround Time for FIFO was: %lf\n", fifoTurnaroundTime);
 		printf("\nAverage Turnaround Time for SJF was: %lf\n", sjfTurnaroundTime);
 		printf("\nAverage Turnaround Time for SRT was: %lf\n", srtTurnaroundTime);
-		printf("\nAverage Turnaround Time for PPB was: %lf\n", ppbTurnaroundTime);
+		printf("\nAverage Turnaround Time for PB was: %lf\n", pbTurnaroundTime);
 
 
 	} else {
@@ -303,7 +303,7 @@ int main(int argc, char * argv[]) {
     // improved_round_robin();
     // highest_response_ratio_next();
     // improved_multilevel_feedback_queue();
-    // preemptive_priority_based();
+    // priority_based();
 
     return 0;
 }
