@@ -3,6 +3,7 @@ int preemptive_random(struct process processes[]) {
 
 	int selectedProcess = -1;
   int randomSelect = rand()%numProcesses;
+  printf("%d", randomSelect);
   if(processes[randomSelect].active == 1){
     selectedProcess = randomSelect; 
   }
