@@ -32,6 +32,7 @@ struct process {
 #include "first_in_first_out.c"
 #include "shortest_job_first.c"
 #include "shortest_remaining_time.c"
+#include "lowest_resonse_ratio_next.c"
 
 
 // runs the simulation for a given set of processes and a particular scheduling algorithm
