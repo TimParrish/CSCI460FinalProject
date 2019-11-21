@@ -25,9 +25,8 @@ struct process {
 #include <time.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
-#include "improved_round_robin.c"
+#include "round_robin.c"
 #include "highest_response_ratio_next.c"
-#include "improved_multilevel_feedback_queue.c"
 #include "preemptive_priority_based.c"
 #include "first_in_first_out.c"
 #include "shortest_job_first.c"
@@ -40,6 +39,8 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 	int anyProcessRemains =  1;
 	int currentProcessIndex = -1;
 	int time = 0; // simulation time (t)
+	int rrTimeQuanta = 3;
+	int rrRemainingTime = rrTimeQuanta;	
 	
 	// run through the simulation
 	while (anyProcessRemains == 1) {
@@ -49,8 +50,7 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 			
 			if (processes[i].arrivalTime == time) {
 				processes[i].active = 1;
-			}
-			
+			}			
 		}
 		
 		int i = -1; // initialize error process if algorithm name isn't valid
@@ -70,10 +70,15 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 			
 			i = srt(processes);
 			
+		} else if (strcmp("RR", algorithm) == 0) {
+						
+			currentProcessIndex = round_robin(processes, currentProcessIndex, &rrRemainingTime, rrTimeQuanta);
+			i = currentProcessIndex;
+			
 		} else {
+			
 			printf("Not a known algorithm.");
 		}
-
 		
 		if (i == -1) {
 			// no valid process to run, do nothing
@@ -169,12 +174,10 @@ int main(int argc, char * argv[]) {
 			processes[i].remainingCpuTime = processes[i].cpuTime; // initialize Ri = Ti
 			processes[i].priority = gsl_ran_flat(r, 0, numPriorities); // get random integer (0-k) from a uniform distribution
 			
-			
 			printf("Process #%d:\nAi: %d\nTi: %d\nRi: %d\nPriority: %d\n", processes[i].id, processes[i].arrivalTime, processes[i].cpuTime, processes[i].remainingCpuTime, processes[i].priority);
 
 		}
-		
-		
+				
 		// copy all values of processes so we can recover from direct manipulation
 		struct process processCopy[numProcesses];
 		for (int i = 0; i < numProcesses; i++) {
@@ -184,6 +187,7 @@ int main(int argc, char * argv[]) {
 		double fifoTurnaroundTime = 0;
 		double sjfTurnaroundTime = 0;
 		double srtTurnaroundTime = 0;
+		double rrTurnaroundTime = 0;	
 		
 		// run our simulation with FIFO 
 		printf("--------------- Starting FIFO ---------------");
@@ -207,93 +211,21 @@ int main(int argc, char * argv[]) {
 		printf("--------------- Starting SRT ---------------");
 		srtTurnaroundTime = simulation(processes, "SRT"); // run our simulation
 		
+		// copy all values from processCopy to restore our original processes
+		for (int i = 0; i < numProcesses; i++) {
+			processes[i] = processCopy[i];
+		}
+		
+		// run our simulation with RR
+		printf("--------------- Starting RR ---------------");
+		rrTurnaroundTime = simulation(processes, "RR"); // run our simulation
+		
 		printf("\nAverage Turnaround Time for FIFO was: %lf\n", fifoTurnaroundTime);
 		printf("\nAverage Turnaround Time for SJF was: %lf\n", sjfTurnaroundTime);
 		printf("\nAverage Turnaround Time for SRT was: %lf\n", srtTurnaroundTime);
-		
-		
-	} else {
-		
-		// csv file initialization
-		FILE *fp;  
-		fp = fopen("results.csv","w+");
-		
-		// print header of csv 
-		fprintf(fp, "Mean (d),Standard Deviation(v),FIFO,SJF,SRT\n");
-		
-		// iterate over many values of d to create plots
-		for (d = 1; d < k  * 5; d++) {
-			v = 0.5 * d; // standard deviation is always 1/2 of mean for simplicity
-			
-				// intialize values of all processes
-			for (int i = 0; i < numProcesses; i++) {
-				
-				processes[i].id = i; // initialize a sequential id
-				processes[i].active = 0; // initialize that a process is inactive at first
-				processes[i].arrivalTime = gsl_ran_flat(r, 0, k); // get random integer (0-k) from a uniform distribution
-				
-				// get a random int from the normal distribution with mean d and standard deviation v
-				int randomNormal = gsl_ran_gaussian(r, v); // returns ints around mean = 0
-				randomNormal += d; // adds the mean to get correct gaussian int with mean = d and sd = v
-				// set all negative or 0 values to 1
-				if (randomNormal <= 0) {
-					randomNormal = 1;
-				}
-				
-				processes[i].cpuTime = randomNormal; // get random integer from the normal distribution
-				processes[i].remainingCpuTime = processes[i].cpuTime; // initialize Ri = Ti
-				
-				
-				printf("Process #%d:\nAi: %d\nTi: %d\nRi: %d\n", processes[i].id, processes[i].arrivalTime, processes[i].cpuTime, processes[i].remainingCpuTime);
-
-			}
-			
-			
-			// copy all values of processes so we can recover from direct manipulation
-			struct process processCopy[numProcesses];
-			for (int i = 0; i < numProcesses; i++) {
-				processCopy[i] = processes[i];
-			}
-			
-			double fifoTurnaroundTime = 0;
-			double sjfTurnaroundTime = 0;
-			double srtTurnaroundTime = 0;
-			
-			// run our simulation with FIFO 
-			printf("--------------- Starting FIFO ---------------");
-			fifoTurnaroundTime = simulation(processes, "FIFO"); 
-			
-			// copy all values from processCopy to restore our original processes
-			for (int i = 0; i < numProcesses; i++) {
-				processes[i] = processCopy[i];
-			}
-			
-			// run our simulation with SJF
-			printf("--------------- Starting SJF ---------------");
-			sjfTurnaroundTime = simulation(processes, "SJF"); // run our simulation
-			
-			// copy all values from processCopy to restore our original processes
-			for (int i = 0; i < numProcesses; i++) {
-				processes[i] = processCopy[i];
-			}
-			
-			// run our simulation with SRT
-			printf("--------------- Starting SRT ---------------");
-			srtTurnaroundTime = simulation(processes, "SRT"); // run our simulation			
-			
-			fprintf(fp, "%d,%lf,%lf,%lf,%lf\n", d, v, (d / fifoTurnaroundTime), (d / sjfTurnaroundTime), (d / srtTurnaroundTime));
-		
-		}
-		fclose(fp);
-	}
+		printf("\nAverage Turnaround Time for RR was: %lf\n", rrTurnaroundTime);			
+	} 
 	
-	gsl_rng_free (r);
-	
-	printf("In the main program, calling down to methods in other files now...\n");
-    improved_round_robin();
-    highest_response_ratio_next();
-    improved_multilevel_feedback_queue();
-    preemptive_priority_based();
-	
+	gsl_rng_free (r);	
     return 0;
 }

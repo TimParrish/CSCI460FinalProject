@@ -1,6 +1,6 @@
 // improved Round Robin
 
-int improved_round_robin(struct process processes[], int currentIndex, int *scheduledTimeLeft, int timeQuanta)
+int round_robin(struct process processes[], int currentIndex, int *scheduledTimeLeft, int timeQuanta)
 {
 	
 	// if we're already working on a process, we must keep working it unless it's schedule time is up
