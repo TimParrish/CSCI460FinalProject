@@ -6,7 +6,7 @@
 // Tim Parrish
 
 static int k = 100; // interval in which processes may arrive
-static int numProcesses = 50;
+static int numProcesses = 10;
 static int numPriorities = 10;
 
 struct process {
@@ -45,6 +45,7 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 	int rrTimeQuanta = 3;
 	int rrRemainingTime = rrTimeQuanta;
 	int hrrnIndex = -1;
+	
 	// run through the simulation
 	while (anyProcessRemains == 1) {
 
@@ -312,6 +313,7 @@ int main(int argc, char * argv[]) {
 		printf("--------------- Starting Random Scheduling ---------------");
 		randomTurnaroundTime = simulation(processes, "RAND"); // run our simulation
 
+		// print our results
 		printf("\nAverage Turnaround Time for FIFO was: %lf\n", fifoTurnaroundTime);
 		printf("\nAverage Turnaround Time for SJF was: %lf\n", sjfTurnaroundTime);
 		printf("\nAverage Turnaround Time for SRT was: %lf\n", srtTurnaroundTime);
@@ -325,21 +327,21 @@ int main(int argc, char * argv[]) {
 
 
 	} else {
-
+		
 		// csv file initialization
-		FILE *fp;
+		FILE *fp;  
 		fp = fopen("results.csv","w+");
-
-		// print header of csv
-		fprintf(fp, "Mean (d),Standard Deviation(v),FIFO,SJF,SRT\n");
-
+		
+		// print header of csv 
+		fprintf(fp, "Mean (d),FIFO,SJF,SRT,RR,HRRN,LRRN,PB,NPP,WRAN,RAN\n");
+		
 		// iterate over many values of d to create plots
-		for (d = 1; d < k  * 5; d++) {
+		for (d = 1; d < k; d++) {
 			v = 0.5 * d; // standard deviation is always 1/2 of mean for simplicity
-
+			
 				// intialize values of all processes
 			for (int i = 0; i < numProcesses; i++) {
-
+				
 				processes[i].id = i; // initialize a sequential id
 				processes[i].active = 0; // initialize that a process is inactive at first
 				processes[i].arrivalTime = gsl_ran_flat(r, 0, k); // get random integer (0-k) from a uniform distribution
@@ -354,25 +356,31 @@ int main(int argc, char * argv[]) {
 
 				processes[i].cpuTime = randomNormal; // get random integer from the normal distribution
 				processes[i].remainingCpuTime = processes[i].cpuTime; // initialize Ri = Ti
+				processes[i].priority = gsl_ran_flat(r, 0, numPriorities); // get random integer (0-k) from a uniform distribution
 
-
-				printf("Process #%d:\nAi: %d\nTi: %d\nRi: %d\n", processes[i].id, processes[i].arrivalTime, processes[i].cpuTime, processes[i].remainingCpuTime);
+				printf("Process #%d:\nAi: %d\nTi: %d\nRi: %d\nPriority: %d\n", processes[i].id, processes[i].arrivalTime, processes[i].cpuTime, processes[i].remainingCpuTime, processes[i].priority);
 
 			}
-
-
+			
 			// copy all values of processes so we can recover from direct manipulation
 			struct process processCopy[numProcesses];
 			for (int i = 0; i < numProcesses; i++) {
 				processCopy[i] = processes[i];
 			}
-
+			
 			double fifoTurnaroundTime = 0;
 			double sjfTurnaroundTime = 0;
 			double srtTurnaroundTime = 0;
-
+			double rrTurnaroundTime = 0;
+			double hrrnTurnaroundTime = 0;
+			double lrrnTurnaroundTime = 0;
+			double pbTurnaroundTime = 0;
+			double nonPreemptivePriorityTurnaroundTime = 0;
+			double wastefulRandomTurnaroundTime = 0;
+			double randomTurnaroundTime = 0;
+			
 			// run our simulation with FIFO
-			printf("--------------- Starting FIFO ---------------");
+			printf("---------------------- Starting FIFO -----------------------");
 			fifoTurnaroundTime = simulation(processes, "FIFO");
 
 			// copy all values from processCopy to restore our original processes
@@ -381,7 +389,7 @@ int main(int argc, char * argv[]) {
 			}
 
 			// run our simulation with SJF
-			printf("--------------- Starting SJF ---------------");
+			printf("----------------------- Starting SJF -----------------------");
 			sjfTurnaroundTime = simulation(processes, "SJF"); // run our simulation
 
 			// copy all values from processCopy to restore our original processes
@@ -390,11 +398,75 @@ int main(int argc, char * argv[]) {
 			}
 
 			// run our simulation with SRT
-			printf("--------------- Starting SRT ---------------");
+			printf("----------------------- Starting SRT -----------------------");
 			srtTurnaroundTime = simulation(processes, "SRT"); // run our simulation
 
-			fprintf(fp, "%d,%lf,%lf,%lf,%lf\n", d, v, (d / fifoTurnaroundTime), (d / sjfTurnaroundTime), (d / srtTurnaroundTime));
+			// copy all values from processCopy to restore our original processes
+			for (int i = 0; i < numProcesses; i++) {
+				processes[i] = processCopy[i];
+			}
 
+			// run our simulation with RR
+			printf("--------------- Starting RR ---------------");
+			rrTurnaroundTime = simulation(processes, "RR"); // run our simulation
+
+			// copy all values from processCopy to restore our original processes
+			for (int i = 0; i < numProcesses; i++) {
+				processes[i] = processCopy[i];
+			}
+
+			// run our simulation with HRRN
+			printf("--------------- Starting HRRN ---------------");
+			hrrnTurnaroundTime = simulation(processes, "HRRN"); // run our simulation
+
+			// copy all values from processCopy to restore our original processes
+			for (int i = 0; i < numProcesses; i++) {
+				processes[i] = processCopy[i];
+			}
+
+			// run our simulation with LRRN
+			printf("--------------- Starting LRRN ---------------");
+			lrrnTurnaroundTime = simulation(processes, "LRRN"); // run our simulation
+
+			// copy all values from processCopy to restore our original processes
+			for (int i = 0; i < numProcesses; i++) {
+				processes[i] = processCopy[i];
+			}
+
+			// run our simulation with Preemptive Priority Based
+			printf("------------------ Starting Priority Based -----------------");
+			pbTurnaroundTime = simulation(processes, "PB"); // run our simulation
+
+			// copy all values from processCopy to restore our original processes
+			for (int i = 0; i < numProcesses; i++) {
+				processes[i] = processCopy[i];
+			}
+
+			// run our simulation with nonPreepmtive Priority
+			printf("--------------- Starting Non-Preemptive Priority ---------------");
+			nonPreemptivePriorityTurnaroundTime = simulation(processes, "NONPREPRI"); // run our simulation
+
+			// copy all values from processCopy to restore our original processes
+			for (int i = 0; i < numProcesses; i++) {
+				processes[i] = processCopy[i];
+			}
+
+			// run our simulation with Wasteful Random
+			printf("--------------- Starting Wasteful Random ---------------");
+			wastefulRandomTurnaroundTime = simulation(processes, "WASTERAND"); // run our simulation
+
+			// copy all values from processCopy to restore our original processes
+			for (int i = 0; i < numProcesses; i++) {
+				processes[i] = processCopy[i];
+			}
+
+			// run our simulation with random scheduling
+			printf("--------------- Starting Random Scheduling ---------------");
+			randomTurnaroundTime = simulation(processes, "RAND"); // run our simulation		
+				
+			// print out to csv 
+			fprintf(fp, "%d,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf\n", d, (d / fifoTurnaroundTime), (d / sjfTurnaroundTime), (d / srtTurnaroundTime), (d / rrTurnaroundTime), (d / hrrnTurnaroundTime), (d / lrrnTurnaroundTime), (d / pbTurnaroundTime), (d / nonPreemptivePriorityTurnaroundTime), (d / wastefulRandomTurnaroundTime), (d / randomTurnaroundTime));
+			
 		}
 		fclose(fp);
 	}
