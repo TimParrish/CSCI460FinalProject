@@ -1,5 +1,5 @@
 
-// algorithm for a NON-preemptive priority based scheduler
+// algorithm for a preemptive priority based scheduler
 int priority_based(struct process processes[numProcesses]) {
 
 	int lowestPriorityProcessIndex = -1;
@@ -12,9 +12,9 @@ int priority_based(struct process processes[numProcesses]) {
 		if (processes[i].active == 1) {
 
 			// check if the processe's arrival time was earlier than the earliest known
-			if (processes[i].arrivalTime < lowestPriority) {
+			if (processes[i].priority < lowestPriority) {
 
-				lowestPriority = processes[i].arrivalTime; // set new earleist known arrival time
+				lowestPriority = processes[i].priority; // set new earleist known arrival time
 				lowestPriorityProcessIndex = i; // return index of the earliest known arrival time
 			}
 		}

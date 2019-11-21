@@ -5,8 +5,8 @@
 // Rial Johnson
 // Tim Parrish
 
-static int k = 20; // interval in which processes may arrive
-static int numProcesses = 5;
+static int k = 100; // interval in which processes may arrive
+static int numProcesses = 50;
 static int numPriorities = 10;
 
 struct process {
@@ -34,6 +34,7 @@ struct process {
 #include "shortest_remaining_time.c"
 #include "lowest_response_ratio_next.c"
 #include "preemptive_random.c"
+#include "nonPreemptive_Priority_Scheduling.c"
 
 // runs the simulation for a given set of processes and a particular scheduling algorithm
 double simulation(struct process processes[numProcesses], char algorithm[]) {
@@ -92,6 +93,12 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 		else if (strcmp("PRERAND", algorithm) == 0){
 			// run preemptive random
 			currentProcessIndex = preemptive_random(processes);
+			i = currentProcessIndex;
+			
+		}
+		else if (strcmp("NONPREPRI", algorithm) == 0){
+			// run preemptive random
+			currentProcessIndex = nonPreemptive_Priority_Scheduling(processes, time, currentProcessIndex, hrrnIndex);
 			i = currentProcessIndex;
 			
 		}
@@ -214,6 +221,7 @@ int main(int argc, char * argv[]) {
 		double hrrnTurnaroundTime = 0;
 		double lrrnTurnaroundTime = 0;
 		double PRERANDTurnaroundTime = 0;
+		double nonPreemptivePriorityTurnaroundTime = 0;
 
 
 		// run our simulation with FIFO
@@ -271,9 +279,18 @@ int main(int argc, char * argv[]) {
 			processes[i] = processCopy[i];
 		}
 
-		// run our simulation with Preemtive Random
+		// run our simulation with Preepmtive Random
 		printf("--------------- Starting PreemptiveRandom ---------------");
 		PRERANDTurnaroundTime = simulation(processes, "PRERAND"); // run our simulation
+
+		// copy all values from processCopy to restore our original processes
+		for (int i = 0; i < numProcesses; i++) {
+			processes[i] = processCopy[i];
+		}
+
+		// run our simulation with nonPreepmtive Priority
+		printf("--------------- Starting nonPreemptive Priority ---------------");
+		nonPreemptivePriorityTurnaroundTime = simulation(processes, "NONPREPRI"); // run our simulation
 
 		printf("\nAverage Turnaround Time for FIFO was: %lf\n", fifoTurnaroundTime);
 		printf("\nAverage Turnaround Time for SJF was: %lf\n", sjfTurnaroundTime);
@@ -282,6 +299,7 @@ int main(int argc, char * argv[]) {
 		printf("\nAverage Turnaround Time for HRRN was: %lf\n", hrrnTurnaroundTime);
 		printf("\nAverage Turnaround Time for LRRN was: %lf\n", lrrnTurnaroundTime);
 		printf("\nAverage Turnaround Time for PRERAND was: %lf\n", PRERANDTurnaroundTime);
+		printf("\nAverage Turnaround Time for NONPREPRI was: %lf\n", nonPreemptivePriorityTurnaroundTime);
 
 
 	} else {
