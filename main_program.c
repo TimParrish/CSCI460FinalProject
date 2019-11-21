@@ -35,6 +35,7 @@ struct process {
 #include "lowest_response_ratio_next.c"
 #include "preemptive_random.c"
 #include "nonPreemptive_Priority_Scheduling.c"
+#include "random_scheduling.c"
 
 // runs the simulation for a given set of processes and a particular scheduling algorithm
 double simulation(struct process processes[numProcesses], char algorithm[]) {
@@ -99,6 +100,12 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 		else if (strcmp("NONPREPRI", algorithm) == 0){
 			// run preemptive random
 			currentProcessIndex = nonPreemptive_Priority_Scheduling(processes, time, currentProcessIndex, hrrnIndex);
+			i = currentProcessIndex;
+			
+		}
+		else if (strcmp("RAND", algorithm) == 0){
+			// run random
+			currentProcessIndex = random_scheduling(processes);
 			i = currentProcessIndex;
 			
 		}
@@ -222,7 +229,7 @@ int main(int argc, char * argv[]) {
 		double lrrnTurnaroundTime = 0;
 		double PRERANDTurnaroundTime = 0;
 		double nonPreemptivePriorityTurnaroundTime = 0;
-
+		double randomTurnaroundTime = 0;
 
 		// run our simulation with FIFO
 		printf("---------------------- Starting FIFO -----------------------");
@@ -279,8 +286,8 @@ int main(int argc, char * argv[]) {
 			processes[i] = processCopy[i];
 		}
 
-		// run our simulation with Preepmtive Random
-		printf("--------------- Starting PreemptiveRandom ---------------");
+		// run our simulation with Wasteful Random
+		printf("--------------- Starting Wasteful Random ---------------");
 		PRERANDTurnaroundTime = simulation(processes, "PRERAND"); // run our simulation
 
 		// copy all values from processCopy to restore our original processes
@@ -292,6 +299,15 @@ int main(int argc, char * argv[]) {
 		printf("--------------- Starting nonPreemptive Priority ---------------");
 		nonPreemptivePriorityTurnaroundTime = simulation(processes, "NONPREPRI"); // run our simulation
 
+		// copy all values from processCopy to restore our original processes
+		for (int i = 0; i < numProcesses; i++) {
+			processes[i] = processCopy[i];
+		}
+
+		// run our simulation with random scheduling
+		printf("--------------- Starting Random Scheduling ---------------");
+		randomTurnaroundTime = simulation(processes, "RAND"); // run our simulation
+
 		printf("\nAverage Turnaround Time for FIFO was: %lf\n", fifoTurnaroundTime);
 		printf("\nAverage Turnaround Time for SJF was: %lf\n", sjfTurnaroundTime);
 		printf("\nAverage Turnaround Time for SRT was: %lf\n", srtTurnaroundTime);
@@ -300,6 +316,7 @@ int main(int argc, char * argv[]) {
 		printf("\nAverage Turnaround Time for LRRN was: %lf\n", lrrnTurnaroundTime);
 		printf("\nAverage Turnaround Time for PRERAND was: %lf\n", PRERANDTurnaroundTime);
 		printf("\nAverage Turnaround Time for NONPREPRI was: %lf\n", nonPreemptivePriorityTurnaroundTime);
+		printf("\nAverage Turnaround Time for RAND was: %lf\n", randomTurnaroundTime);
 
 
 	} else {
