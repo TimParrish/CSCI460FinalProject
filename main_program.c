@@ -8,6 +8,7 @@
 static int k = 100; // interval in which processes may arrive
 static int numProcesses = 10;
 static int numPriorities = 10;
+static int rrTimeQuanta = 3;
 
 struct process {
 	int id; // pi
@@ -42,7 +43,6 @@ double simulation(struct process processes[numProcesses], char algorithm[]) {
 	int anyProcessRemains =  1;
 	int currentProcessIndex = -1;
 	int time = 0; // simulation time (t)
-	int rrTimeQuanta = 3;
 	int rrRemainingTime = rrTimeQuanta;
 	int hrrnIndex = -1;
 	
@@ -167,10 +167,11 @@ int main(int argc, char * argv[]) {
 	int fullPlot = 0;
 
 	// set variables with command line arguments
-	if (argc == 4) {
+	if (argc == 5) {
         k = atoi(argv[1]); // interval in which processes may arrive
-        numProcesses = atoi(argv[2]);
-		fullPlot = atoi(argv[3]);
+        numProcesses = atoi(argv[2]); // number of processes
+		rrTimeQuanta = atoi(argv[3]); // time quanta for RR algorithm
+		fullPlot = atoi(argv[4]); // whether or not to do demo or full plot
     }
 
 	struct process processes[numProcesses]; // array of all processes
