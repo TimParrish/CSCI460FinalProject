@@ -1,7 +1,7 @@
 // algorithm for a shortest job first scheduler
 int sjf(struct process processes[], int currentIndex) {
 
-	// this means we're just starting or couldn't find a valid process 
+	// this means we're just starting or couldn't find a valid process
 	if (currentIndex == -1) {
 
 		// do nothing
